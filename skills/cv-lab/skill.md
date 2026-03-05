@@ -9,6 +9,48 @@ argument-hint: <path-to-project-directory> [--threshold N] [--max-rounds M]
 
 # CV Lab - Computer Vision Paper Review Pipeline
 
+[CV_LAB REVIEW PIPELINE - ROUND {{ROUND}}/{{MAX_ROUNDS}}]
+
+## CRITICAL EXECUTION RULES - YOU MUST FOLLOW THESE
+
+**YOU ARE AN AUTONOMOUS REVIEW PIPELINE. DO NOT STOP UNTIL THE PIPELINE COMPLETES.**
+
+Each round has 5 phases that MUST execute in sequence. After completing one phase, you MUST immediately proceed to the next. DO NOT pause, ask the user, or stop between phases.
+
+```
+Phase 0: Initialize (first round only) — add \usepackage{xcolor} to preamble
+Phase 1: Professor Review        → then IMMEDIATELY proceed to Phase 2
+Phase 2: 4 Peer Reviews (parallel) → then IMMEDIATELY proceed to Phase 3
+Phase 3: Plan & Revise           → revisions in \textcolor{blue}{...} → IMMEDIATELY proceed to Phase 4
+Phase 4: Official Review (1-10)  → then IMMEDIATELY proceed to Phase 5
+Phase 5: Decision Gate           → if score >= threshold: OUTPUT [PROMISE:CV_LAB_COMPLETE]
+                                  → if max rounds reached: OUTPUT [PROMISE:CV_LAB_MAX_ROUNDS]
+                                  → if score < threshold: PAUSE for user confirmation
+                                    → Show revision summary + score
+                                    → Wait for user to say "continue" or "stop"
+                                    → On "continue": START NEXT ROUND at Phase 1
+```
+
+**REVISION VISIBILITY RULE:**
+All text changes made during Phase 3 (Plan & Revise) MUST be wrapped in `\textcolor{blue}{...}` so the user can visually identify what was revised in the compiled PDF. This includes:
+- New sentences or paragraphs: `\textcolor{blue}{New text here}`
+- Replaced text: Delete old text, insert `\textcolor{blue}{replacement text}`
+- New equations: Wrap in `\textcolor{blue}{$...$}` or `{\color{blue} \begin{equation}...\end{equation}}`
+- New table rows/cells: Wrap cell content in `\textcolor{blue}{...}`
+- New citations: `\textcolor{blue}{\cite{new_ref}}`
+
+At the start of each new round, REMOVE the `\textcolor{blue}{...}` wrappers from the PREVIOUS round's revisions (they are now accepted baseline text). Only the CURRENT round's revisions should be blue.
+
+**STOP CONDITIONS (only these):**
+- `[PROMISE:CV_LAB_COMPLETE]` - Official review score >= threshold. Paper accepted.
+- `[PROMISE:CV_LAB_MAX_ROUNDS]` - Max rounds exhausted. Paper not accepted.
+- User says "stop", "cancel", or "abort"
+- Phase 5 Decision Gate when score < threshold: PAUSE and wait for user confirmation
+
+**NEVER stop after just Phase 1 (Professor Review). NEVER stop after just Phase 2 (Peer Reviews). NEVER stop without an Official Review score. If you find yourself about to stop without outputting a PROMISE tag AND without waiting for user confirmation at the Decision Gate, YOU ARE NOT DONE - continue to the next phase.**
+
+---
+
 Orchestrate a rigorous academic paper review loop for LaTeX **project directories** in computer vision. Simulates the full conference review process with a professor advisor, 4 specialized peer reviewers, and an official conference reviewer.
 
 ## Usage
@@ -158,6 +200,7 @@ User: "/cv-lab /path/to/paper_project/ --threshold 7"
    }
    ```
 5. **Backup original**: Copy the entire project to `.cv-lab/backup/round-0/` (excluding `.cv-lab/` itself)
+6. **Add xcolor package**: Check if `\usepackage{xcolor}` or `\usepackage{color}` already exists in the root .tex preamble (before `\begin{document}`). If NOT present, add `\usepackage{xcolor}` to the preamble using the Edit tool. This enables `\textcolor{blue}{...}` for revision visibility.
 
 **IMPORTANT**: When providing paper content to reviewers, concatenate ALL section .tex files in order (following `\input{}` order from root), and include the bibliography content from `.bib` files. Each section should be clearly labeled with its filename for precise inline comments:
 ```
@@ -175,7 +218,7 @@ User: "/cv-lab /path/to/paper_project/ --threshold 7"
 [content]
 ```
 
-### Phase 1: Professor Review
+### Phase 1: Professor Review [DO NOT STOP AFTER THIS PHASE]
 
 The professor reviews the paper with defensive scrutiny. This is the advisor's pre-submission check.
 
@@ -229,7 +272,9 @@ Instructions:
 - Save a combined annotated version to `.cv-lab/round-{{N}}/after-professor/` (mirror the project structure)
 - Extract and log all `% [PROFESSOR]` comments to `.cv-lab/round-{{N}}/professor-summary.md`
 
-### Phase 2: Peer Review (4 Parallel Reviewers)
+**>>> PHASE 1 COMPLETE. DO NOT STOP. IMMEDIATELY PROCEED TO PHASE 2: PEER REVIEW <<<**
+
+### Phase 2: Peer Review (4 Parallel Reviewers) [DO NOT STOP AFTER THIS PHASE]
 
 Spawn 4 peer reviewers simultaneously, each with a different focus area.
 
@@ -298,7 +343,9 @@ Instructions:
 - If two reviewers comment on the same location, stack comments in reviewer order
 - Preserve all existing `% [PROFESSOR]` comments
 
-### Phase 3: Plan & Revise
+**>>> PHASE 2 COMPLETE. DO NOT STOP. IMMEDIATELY PROCEED TO PHASE 3: PLAN & REVISE <<<**
+
+### Phase 3: Plan & Revise [DO NOT STOP AFTER THIS PHASE]
 
 Aggregate all feedback and systematically revise the paper.
 
@@ -332,13 +379,33 @@ Save plan to `.cv-lab/round-{{N}}/revision-plan.md`
 Apply revisions to the .tex files **in the project directory** using the Edit tool:
 - Fix CRITICAL issues first, then MAJOR, then MINOR
 - Edit the actual section files (e.g., `src/sec/4. proposed method.tex`), NOT a concatenated copy
-- Remove addressed review comments (change `% [PROFESSOR] CRITICAL:` to `% [PROFESSOR] RESOLVED:`)
-- Keep unresolved comments intact
-- Do NOT remove the original comment - mark it as resolved with the fix description:
+
+**BLUE TEXT RULE - ALL revisions MUST be visually marked:**
+- **New text**: Wrap in `\textcolor{blue}{new text here}`
+- **Replaced text**: Delete old text, insert `\textcolor{blue}{replacement text}`
+- **New equations**: `{\color{blue} \begin{equation}...\end{equation}}`  or inline `\textcolor{blue}{$...$}`
+- **New table content**: `\textcolor{blue}{cell content}`
+- **New citations**: `\textcolor{blue}{\cite{new_ref}}`
+- **New figures/captions**: `\textcolor{blue}{caption text}`
+
+Example revision:
+```latex
+% BEFORE:
+Our method achieves state-of-the-art performance on all benchmarks.
+
+% AFTER:
+\textcolor{blue}{Our method achieves competitive performance on COCO and VOC benchmarks,
+ranking first on AP$_{50}$ and second on AP$_{75}$ (see Table~\ref{tab:main}).}
+```
+
+**If this is Round 2+**: Before applying new revisions, first REMOVE all `\textcolor{blue}{...}` wrappers from the previous round (keep the text inside, just remove the blue wrapper). Use search-and-replace to find `\textcolor{blue}{` patterns. Only the CURRENT round's changes should be blue.
+
+- Mark addressed review comments as resolved:
   ```latex
   % [PROFESSOR] RESOLVED (was CRITICAL): Added statistical significance tests to Table 2.
   % Previously: "Claims not supported by Table 2 results"
   ```
+- Keep unresolved comments intact
 - When adding new content (e.g., new experiments, citations), also update `main.bib` if new references are needed
 
 **Step 3c: Verify Compilation**
@@ -356,7 +423,9 @@ If compilation fails, fix the LaTeX errors in the affected files before proceedi
 
 Save a snapshot of all revised .tex files to `.cv-lab/round-{{N}}/after-revision/` (mirror project structure)
 
-### Phase 4: Official Review
+**>>> PHASE 3 COMPLETE. DO NOT STOP. IMMEDIATELY PROCEED TO PHASE 4: OFFICIAL REVIEW <<<**
+
+### Phase 4: Official Review [THIS PHASE PRODUCES THE SCORE]
 
 The official reviewer evaluates the revised paper and produces a 1-10 rating.
 
@@ -423,26 +492,69 @@ Instructions:
   }
   ```
 
-### Phase 5: Decision Gate
+### Phase 5: Decision Gate [THE ONLY PHASE WHERE STOPPING IS ALLOWED]
+
+**Extract the official review score and evaluate:**
 
 ```
 if official_score >= threshold:
     status = "ACCEPTED"
-    -> Generate final report
-    -> Clean up review comments (optional: keep as documentation)
-    -> Exit loop
+    -> Update state.json with final score and status="accepted"
+    -> Generate final report to .cv-lab/final-report.md
+    -> Output: [PROMISE:CV_LAB_COMPLETE]
+    -> Print: "Paper ACCEPTED with score {score}/{threshold}. Review complete after {N} round(s)."
+    -> EXIT
 
 elif current_round >= max_rounds:
     status = "MAX_ROUNDS_REACHED"
-    -> Generate final report with remaining issues
-    -> Exit loop
+    -> Update state.json with status="max_rounds_reached"
+    -> Generate final report with remaining issues to .cv-lab/final-report.md
+    -> Output: [PROMISE:CV_LAB_MAX_ROUNDS]
+    -> Print: "Max rounds ({max_rounds}) reached. Final score: {score}/{threshold}. See .cv-lab/final-report.md"
+    -> EXIT
 
 else:
-    current_round += 1
+    -> Update state.json with incremented current_round
     -> Snapshot current project state to .cv-lab/round-{{N}}/
-    -> Loop back to Phase 1 (Professor Review)
-    -> Professor focuses on remaining issues from official review
+    -> PAUSE AND PRESENT REVISION SUMMARY TO USER:
+
+    Print the following:
+    ---
+    ## Round {{N}} Complete — Score: {{score}}/10 (threshold: {{threshold}})
+
+    ### Official Review Summary
+    [Key strengths and weaknesses from official review]
+
+    ### Revisions Made This Round (shown in blue in the .tex files)
+    [List of changes made, organized by file]
+
+    ### Remaining Issues for Next Round
+    [Unresolved comments that will be addressed]
+
+    ### Score Progression
+    | Round | Score | Decision |
+    |-------|-------|----------|
+    [score history table]
+
+    **The revised paper has blue text marking all changes. Please review the .tex files or compile the PDF to inspect.**
+
+    **Type "continue" to start Round {{N+1}}, or "stop" to end the review.**
+    ---
+
+    -> WAIT for user response
+    -> If user says "continue", "yes", "go", "next", or similar:
+       current_round += 1
+       -> LOOP BACK TO PHASE 1 (Professor Review)
+       -> At the START of the new round, first remove previous round's \textcolor{blue}{...} wrappers
+       -> Professor focuses on remaining issues from the official review
+    -> If user says "stop", "cancel", "abort", "no", or similar:
+       -> Output: [PROMISE:CV_LAB_USER_STOPPED]
+       -> Print: "Review stopped by user at Round {{N}}. Final score: {{score}}/10."
+       -> Generate final report to .cv-lab/final-report.md
+       -> EXIT
 ```
+
+**CRITICAL: If you reach this point without a PROMISE tag AND without pausing for user confirmation, YOU ARE NOT DONE - you must either output a PROMISE tag or ask the user to continue.**
 
 ## State Management
 
