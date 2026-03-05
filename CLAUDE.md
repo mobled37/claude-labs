@@ -8,10 +8,12 @@ Claude Code plugin for academic paper review orchestration.
 
 ## How to Use
 
+Input is a **LaTeX project directory** (not a single .tex file). The skill auto-discovers `main.tex`, section files, bibliography, figures, and venue from style files.
+
 ```
-/claude-labs:cv-lab paper.tex
-/claude-labs:cv-lab paper.tex --threshold 8
-/claude-labs:cv-lab paper.tex --threshold 7 --max-rounds 5
+/claude-labs:cv-lab /path/to/paper_project/
+/claude-labs:cv-lab . --threshold 8
+/claude-labs:cv-lab /path/to/paper_project/ --threshold 7 --max-rounds 5
 ```
 
 ## Review Pipeline

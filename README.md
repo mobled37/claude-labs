@@ -25,19 +25,46 @@ CV Lab orchestrates a rigorous academic review loop with three types of reviewer
 ### Usage
 
 ```bash
-/claude-labs:cv-lab paper.tex                               # Default: threshold=7, max-rounds=5
-/claude-labs:cv-lab paper.tex --threshold 8                  # Require score 8+ (clear accept)
-/claude-labs:cv-lab paper.tex --threshold 6 --max-rounds 3   # Lenient, fewer rounds
-/claude-labs:cv-lab paper.tex --threshold 5 --max-rounds 2   # Quick check for early drafts
+/claude-labs:cv-lab /path/to/paper_project/                  # Default: threshold=7, max-rounds=5
+/claude-labs:cv-lab .                                        # Review project in current directory
+/claude-labs:cv-lab /path/to/paper_project/ --threshold 8    # Require score 8+ (clear accept)
+/claude-labs:cv-lab ./my-eccv-paper --threshold 6 --max-rounds 3   # Lenient, fewer rounds
+/claude-labs:cv-lab /path/to/paper_project/ --threshold 5 --max-rounds 2   # Quick check for early drafts
 ```
 
 ### Parameters
 
 | Parameter | Default | Description |
 |-----------|---------|-------------|
-| `path` | (required) | Path to the main `.tex` file |
+| `path` | (required) | Path to the LaTeX **project directory** (containing `main.tex`, sections, figures, bib, etc.) |
 | `--threshold N` | `7` | Minimum official review score (1-10) to accept |
 | `--max-rounds M` | `5` | Maximum review-revise cycles |
+
+### Expected Project Structure
+
+The skill auto-discovers the project layout. A typical CV paper project:
+
+```
+paper_project/
+  main.tex                    # Root .tex file (entry point)
+  main.bib                    # Bibliography
+  src/
+    sec/
+      1. introduction.tex     # Section files
+      2. related works.tex
+      3. preliminaries.tex
+      4. proposed method.tex
+      5. experiments.tex
+      6. conclusion.tex
+      x_supplementary.tex
+    imgs/
+      figure1.pdf             # Figures
+      ...
+  eccv.sty                    # Style files (auto-detects venue)
+  llncs.cls                   # Document class
+```
+
+Any layout is supported: flat, nested, or multi-file with `\input{}`/`\include{}`.
 
 ### Review Pipeline
 
@@ -166,22 +193,34 @@ Produces a final 1-10 rating following standard conference calibration:
 
 ### State & Resume
 
-All review state is stored in `.cv-lab/` in the paper's directory:
+All review state is stored in `.cv-lab/` inside the paper project directory:
 
 ```
-.cv-lab/
-  state.json              # Pipeline state (round, scores, status)
-  backup/round-0/         # Original paper backup
-  round-1/
-    after-professor.tex   # Paper after professor comments
-    after-peers.tex       # Paper after merged peer comments
-    revision-plan.md      # Prioritized revision plan
-    after-revision.tex    # Paper after revisions
-    official-review.md    # Official review with rating
-  round-2/
-    ...
-  final-report.md         # Aggregate report across all rounds
+paper_project/
+  .cv-lab/                        # Add to .gitignore
+    state.json                    # Pipeline state (round, scores, venue, files)
+    backup/round-0/               # Full project snapshot before any changes
+      main.tex
+      main.bib
+      src/sec/*.tex
+    round-1/
+      after-professor/            # Snapshots mirror project structure
+        main.tex
+        src/sec/*.tex
+      after-peers/
+        ...
+      revision-plan.md            # Prioritized revision plan
+      after-revision/
+        ...
+      official-review.md          # Official review with rating
+      professor-summary.md
+      peer-{1-4}-summary.md
+    round-2/
+      ...
+    final-report.md               # Aggregate report across all rounds
 ```
+
+Revisions are applied **in-place** to the actual project files. Snapshots in `.cv-lab/round-N/` preserve each stage for rollback.
 
 To resume an interrupted review, simply run the command again - it detects existing state and continues from the last completed phase.
 
