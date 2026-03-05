@@ -1,0 +1,20 @@
+{
+  "name": "claude-labs",
+  "version": "0.1.0",
+  "description": "Academic paper review orchestration for Claude Code - CV Lab for computer vision papers",
+  "author": {
+    "name": "claude-labs contributors"
+  },
+  "repository": "https://github.com/kylee/claude-labs",
+  "homepage": "https://github.com/kylee/claude-labs",
+  "license": "MIT",
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "academic-review",
+    "computer-vision",
+    "latex",
+    "paper-review"
+  ],
+  "skills": "./skills/"
+}

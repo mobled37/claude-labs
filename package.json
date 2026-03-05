@@ -1,0 +1,24 @@
+{
+  "name": "claude-labs",
+  "version": "0.1.0",
+  "description": "Academic paper review orchestration plugin for Claude Code",
+  "type": "module",
+  "files": [
+    "agents",
+    "skills",
+    ".claude-plugin",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "claude-code",
+    "plugin",
+    "academic-review",
+    "computer-vision",
+    "latex",
+    "paper-review",
+    "cv-lab"
+  ],
+  "author": "kylee",
+  "license": "MIT"
+}

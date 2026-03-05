@@ -1,0 +1,29 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "claude-labs",
+  "description": "Academic paper review orchestration - Professor, Peer, and Official reviewers for scientific LaTeX papers",
+  "owner": {
+    "name": "kylee"
+  },
+  "plugins": [
+    {
+      "name": "claude-labs",
+      "description": "Academic paper review pipeline for computer vision papers. Orchestrates professor reviews, 4 parallel peer reviewers with related work search, plan-and-revise cycles, and official conference reviews with 1-10 ratings. Iterates until target score is reached.",
+      "version": "0.1.0",
+      "author": {
+        "name": "kylee"
+      },
+      "source": "./",
+      "category": "productivity",
+      "tags": [
+        "academic",
+        "paper-review",
+        "computer-vision",
+        "latex",
+        "cv-lab",
+        "research"
+      ]
+    }
+  ],
+  "version": "0.1.0"
+}

@@ -1,0 +1,5 @@
+.omc/
+.cv-lab/
+*.aux
+*.log
+*.pdf
