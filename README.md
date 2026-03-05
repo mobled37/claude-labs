@@ -1,6 +1,12 @@
 # Claude Labs
 
-A Claude Code plugin for academic paper review orchestration. Currently features **CV Lab** (`cv_lab`), a multi-agent review pipeline for computer vision LaTeX papers that simulates the full conference review process.
+A Claude Code plugin for academic paper review orchestration. Features a multi-agent review pipeline and interactive Q&A with expert reviewers for computer vision LaTeX papers.
+
+| Skill | Description |
+|-------|-------------|
+| **CV Lab** (`cv-lab`) | Full review pipeline - professor, 4 peers, revisions, official review loop |
+| **Ask Professor** (`ask-professor`) | Interactive Q&A with a senior CV professor about your paper |
+| **Ask Peers** (`ask-peers`) | Interactive Q&A with 4 specialized peer reviewers who search related papers |
 
 ## Installation
 
@@ -238,6 +244,42 @@ Create `.cv-lab/config.json` in your paper directory for persistent defaults:
 }
 ```
 
+## Ask Professor - Interactive Q&A
+
+Talk directly to a senior CV professor who has read your paper. Ask about tone, arguments, experiments, submission strategy -- anything an experienced advisor would help with.
+
+```bash
+/claude-labs:ask-professor /path/to/paper/                         # Start Q&A session
+/claude-labs:ask-professor /path/to/paper/ "Is my intro too bold?" # Direct question
+/claude-labs:ask-professor . "What baselines am I missing?"        # Current directory
+```
+
+The professor:
+- References specific sections, equations, tables, and figures
+- Predicts what real reviewers would flag
+- Gives concrete suggestions for every critique
+- Knows CV venue standards (CVPR/ICCV/ECCV/NeurIPS)
+
+## Ask Peers - Interactive Q&A with Specialized Reviewers
+
+Talk to a panel of 4 specialized peer reviewers who **search for related papers** to answer your questions.
+
+```bash
+/claude-labs:ask-peers /path/to/paper/                                   # Start panel Q&A
+/claude-labs:ask-peers /path/to/paper/ "Is my novelty claim valid?"      # Auto-routes to relevant reviewer(s)
+/claude-labs:ask-peers /path/to/paper/ --reviewer 4 "What am I missing?" # Route to Peer-4 (Related Works)
+/claude-labs:ask-peers . "How does my architecture compare?"             # Routes to Peer-1 (Architecture)
+```
+
+| Reviewer | Specialty | What They Search For |
+|----------|-----------|---------------------|
+| **Peer-1** | Architecture | ViT variants, CNN designs, hybrid models, efficiency papers |
+| **Peer-2** | Mathematics | Loss functions, optimization, theoretical foundations |
+| **Peer-3** | Figures & Viz | Presentation standards, benchmark papers in your subfield |
+| **Peer-4** | Related Works | Missing citations, concurrent work, overlooked prior art |
+
+Each reviewer actively searches for related papers via web search when answering, bringing external knowledge beyond what's in the paper.
+
 ## Project Structure
 
 ```
@@ -251,7 +293,11 @@ claude-labs/
     official-reviewer.md    # Official reviewer agent definition
   skills/
     cv-lab/
-      skill.md              # CV Lab orchestration skill
+      skill.md              # CV Lab review pipeline orchestration
+    ask-professor/
+      skill.md              # Interactive professor Q&A
+    ask-peers/
+      skill.md              # Interactive peer reviewer Q&A
   CLAUDE.md
   package.json
 ```

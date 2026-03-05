@@ -4,7 +4,10 @@
       "mcp__plugin_oh-my-claudecode_t__state_list_active",
       "mcp__plugin_oh-my-claudecode_t__state_clear",
       "Bash(claude plugin:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(cp /Users/kylee/projects/claude_labs/skills/cv-lab/skill.md /Users/kylee/.claude/plugins/cache/claude-labs/claude-labs/latest/skills/cv-lab/skill.md)",
+      "Read(//Users/kylee/.claude/plugins/cache/claude-labs/**)",
+      "Bash(mkdir:*)"
     ]
   }
 }
